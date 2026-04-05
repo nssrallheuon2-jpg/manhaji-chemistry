@@ -3,20 +3,22 @@ name: Build Expo Android APK
 on:
   push:
     branches:
-      - main   # يبني كل مرة تدفع كود إلى الفرع الرئيسي
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4   # الإصدار الجديد
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4 # الإصدار الجديد
+        uses: actions/setup-node@v4
         with:
-          node-version: '24'        # Node.js 24 (الأحدث والمدعوم)
+          node-version: '24'
 
       - name: Install dependencies
         run: npm install
@@ -24,10 +26,8 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      - name: Configure Expo Token
-        run: |
-          export EXPO_TOKEN=${{ secrets.EXPO_TOKEN }}
-          eas whoami
+      - name: Verify Expo login
+        run: eas whoami
 
       - name: Build APK
         run: eas build -p android --profile production --non-interactive
