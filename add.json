@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "منهجي - الكيمياء",
+    "slug": "manhaji-chemistry",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "com.manhaji.chemistry",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#7B1FA2"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.manhaji.chemistry"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "YOUR-PROJECT-ID"
+      }
+    }
+  }
+}
