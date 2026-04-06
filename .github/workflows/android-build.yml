@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # يفرض تشغيل الأكشنات على Node.js 24
 
     steps:
       - name: Checkout code
