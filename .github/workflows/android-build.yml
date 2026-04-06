@@ -1,40 +1,35 @@
-name: Build Expo Android APK
+name: Build APK
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # يفرض تشغيل الأكشنات على Node.js 24
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
-          node-version: '24'
-
+          node-version: '18'
+      
       - name: Install dependencies
         run: npm install
-
+      
       - name: Install EAS CLI
         run: npm install -g eas-cli
-
-      - name: Verify Expo login
-        run: eas whoami
-
+      
       - name: Build APK
-        run: eas build -p android --profile production --non-interactive
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+        run: eas build -p android --profile preview --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
         with:
-          name: android-apk
-          path: ./build/**/*.apk
+          name: app-release.apk
+          path: android/app/build/outputs/apk/release/*.apk
