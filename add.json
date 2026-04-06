@@ -1,24 +1,34 @@
 {
   "expo": {
-    "name": "منهجي - الكيمياء",
-    "slug": "manhaji-chemistry",
+    "name": "الكيمياء",
+    "slug": "الكيمياء",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "assetBundlePatterns": ["**/*"],
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#B7FAE2"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
     "android": {
-      "package": "com.manhaji.chemistry",
-      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#7B1FA2"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#B7FAE2"
       }
     },
-    "ios": {
-      "bundleIdentifier": "com.manhaji.chemistry"
+    "web": {
+      "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "YOUR-PROJECT-ID"
+        "projectId": "735729b5-1589-4454-922c-4dec34c7c3e2"
       }
     }
   }
