@@ -1,37 +1,59 @@
-name: Build APK
+name: Build Flutter APK
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [ main, master ]
+  workflow_dispatch:  # يسمح بالتشغيل اليدوي من قائمة Actions
 
 jobs:
-  build:
+  build-android:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code
+      # 1. تحميل الكود من المستودع
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      # 2. إعداد Java (مطلوب لـ Flutter Android)
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
         with:
-          node-version: '20'
+          distribution: 'temurin'
+          java-version: '17'
       
-      - name: Install dependencies
-        run: npm install
+      # 3. إعداد Flutter SDK
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.6'  # غير هذا إلى إصدارك
+          channel: 'stable'
+          cache: true
       
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
+      # 4. تثبيت التبعيات
+      - name: 📦 Install dependencies
+        run: flutter pub get
       
-      - name: Build APK with EAS
-        run: eas build -p android --profile preview --non-interactive
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      # 5. تنظيف المشروع (اختياري)
+      - name: 🧹 Clean project
+        run: flutter clean
       
-      - name: Upload APK
+      # 6. بناء APK (للأندرويد فقط)
+      - name: 🔨 Build APK
+        run: flutter build apk --release --split-per-abi
+      
+      # 7. رفع ملف APK كـ Artifact (يمكن تنزيله بعد البناء)
+      - name: 📤 Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release.apk
-          path: android/app/build/outputs/apk/release/*.apk
+          name: flutter-apk
+          path: build/app/outputs/flutter-apk/*.apk
           retention-days: 30
+      
+      # 8. (اختياري) رفع التقرير
+      - name: 📊 Upload build report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-report
+          path: build/
+          retention-days: 7
