@@ -1,4 +1,4 @@
-name: Android Build
+name: Android Build (APK + AAB)
 
 on:
   push:
@@ -25,11 +25,33 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x android/gradlew
 
-    - name: Build with Gradle
+    # بناء APK للتجربة على التلفون
+    - name: Build Debug APK
       run: cd android && ./gradlew assembleDebug
 
-    - name: Upload APK
+    - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
         path: android/app/build/outputs/apk/debug/app-debug.apk
+
+    # إعداد التوقيع باستخدام أسرار GitHub
+    - name: Decode Keystore
+      run: |
+        echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
+
+    # بناء AAB للنشر الرسمي
+    - name: Build Release AAB
+      run: |
+        cd android
+        ./gradlew bundleRelease \
+          -Pandroid.injected.signing.store.file=release.keystore \
+          -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
+          -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }} \
+          -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
+
+    - name: Upload Release AAB
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release
+        path: android/app/build/outputs/bundle/release/app-release.aab
