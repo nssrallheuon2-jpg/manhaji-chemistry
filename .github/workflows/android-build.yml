@@ -1,4 +1,4 @@
-name: Build Android Release AAB
+name: Android Build (APK + AAB)
 
 on:
   push:
@@ -30,6 +30,17 @@ jobs:
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
 
+      # بناء APK للتجربة
+      - name: Build Debug APK
+        run: cd android && ./gradlew assembleDebug
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      # بناء AAB للنشر الرسمي
       - name: Build Release AAB
         run: |
           cd android
@@ -39,8 +50,8 @@ jobs:
             -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
 
-      - name: Upload AAB
-        uses: actions/upload-artifact@v3
+      - name: Upload Release AAB
+        uses: actions/upload-artifact@v4
         with:
           name: app-release
           path: android/app/build/outputs/bundle/release/app-release.aab
