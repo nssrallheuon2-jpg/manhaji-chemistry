@@ -1,57 +1,32 @@
-name: Android Build (APK + AAB)
+name: Build Expo Android (AAB)
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
     branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: set up JDK 17
-      uses: actions/setup-java@v4
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
       with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
+        node-version: 18
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x android/gradlew
+    - name: Install dependencies
+      run: npm install
 
-    # بناء APK للتجربة على التلفون
-    - name: Build Debug APK
-      run: cd android && ./gradlew assembleDebug
+    - name: Install Expo & EAS
+      run: npm install -g expo-cli eas-cli
 
-    - name: Upload Debug APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-debug
-        path: android/app/build/outputs/apk/debug/app-debug.apk
+    - name: Login to Expo
+      run: eas login --non-interactive
+      env:
+        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-    # إعداد التوقيع باستخدام أسرار GitHub
-    - name: Decode Keystore
-      run: |
-        echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
-
-    # بناء AAB للنشر الرسمي
-    - name: Build Release AAB
-      run: |
-        cd android
-        ./gradlew bundleRelease \
-          -Pandroid.injected.signing.store.file=release.keystore \
-          -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
-          -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }} \
-          -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
-
-    - name: Upload Release AAB
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release
-        path: android/app/build/outputs/bundle/release/app-release.aab
+    - name: Build AAB
+      run: eas build -p android --non-interactive --profile production
